@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantumGuard | Post-Quantum Discovery & CBOM Migration Platform</title>
+    <!-- Tailwind CSS (via official modern CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#090d16',
+                        darkCard: '#111827',
+                        darkBorder: '#1e293b',
+                        cyanAccent: '#06b6d4',
+                        neonPurple: '#8b5cf6'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Chart.js for interactive Mosca Risk Matrix & Doughnut -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="bg-darkBg text-slate-100 font-sans min-h-screen antialiased selection:bg-cyan-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="border-b border-darkBorder bg-darkCard/80 backdrop-blur sticky top-0 z-40 px-6 py-3.5 flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                <i class="fa-solid fa-atom text-white text-xl animate-spin-slow"></i>
+            </div>
+            <div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-xl font-black tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-indigo-300 to-purple-400">QUANTUMGUARD</span>
+                    <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-950/80 text-cyan-400 border border-cyan-800">PQC CBOM v2.6 · Explainable Risk</span>
+                </div>
+                <p class="text-xs text-slate-400">Post-Quantum Cryptography Discovery & HNDL Risk Prioritizer</p>
+            </div>
+        </div>
+
+        <!-- Scan Switcher & Action Buttons -->
+        <div class="flex items-center space-x-3">
+            <div class="flex items-center space-x-2 bg-slate-900/90 border border-darkBorder rounded-lg px-3 py-1.5 text-xs text-slate-300">
+                <i class="fa-solid fa-clock-rotate-left text-slate-400"></i>
+                <span>Audit History:</span>
+                <select id="scanSelector" class="bg-transparent text-cyan-400 font-medium focus:outline-none cursor-pointer">
+                    <option value="" disabled selected>Loading scans...</option>
+                </select>
+            </div>
+
+            <button onclick="openSettingsModal()" class="px-3.5 py-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-xs font-semibold text-slate-300 border border-slate-700 flex items-center space-x-1.5 transition">
+                <i class="fa-solid fa-sliders text-cyan-400"></i>
+                <span>Mosca Parameters</span>
+            </button>
+
+            <button onclick="exportCurrentCBOM()" id="btnExportCBOM" class="px-3.5 py-2 rounded-lg bg-indigo-950/80 hover:bg-indigo-900 text-xs font-semibold text-indigo-300 border border-indigo-700/60 flex items-center space-x-1.5 transition">
+                <i class="fa-solid fa-file-export text-indigo-400"></i>
+                <span>Export CBOM (CycloneDX)</span>
+            </button>
+
+            <button onclick="openNewScanModal()" class="px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-xs font-bold text-white shadow-lg shadow-cyan-500/25 flex items-center space-x-2 transition">
+                <i class="fa-solid fa-radar text-sm"></i>
+                <span>Launch New Scan</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-6 py-6 space-y-6">
+
+        <!-- Banner Alert: Harvest Now, Decrypt Later (HNDL) Threat Context -->
+        <div id="hndlBanner" class="p-4 rounded-xl bg-gradient-to-r from-red-950/40 via-red-900/20 to-slate-900 border border-red-800/50 flex items-start space-x-4 shadow-xl">
+            <div class="p-2.5 rounded-lg bg-red-900/50 text-red-400 text-lg flex-shrink-0">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div class="flex-1">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-bold text-red-200 uppercase tracking-wide flex items-center space-x-2">
+                        <span>Harvest Now, Decrypt Later (HNDL) Exposure Notice</span>
+                        <span class="text-[10px] bg-red-800/80 text-red-100 px-2 py-0.5 rounded font-mono">Mosca's Inequality: X + Y > Z</span>
+                    </h3>
+                    <span id="bannerThreatCount" class="text-xs font-bold text-red-400 bg-red-950 px-2.5 py-1 rounded-full border border-red-800">Calculating...</span>
+                </div>
+                <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+                    Adversaries are actively storing encrypted corporate and health data today. When a Cryptographically Relevant Quantum Computer (CRQC) emerges (est. 2033), all classical asymmetric primitives (RSA, ECC, Diffie-Hellman) will be broken via Shor's algorithm. Systems with data confidentiality longevity (<strong class="text-red-300 font-mono">X</strong>) plus migration time (<strong class="text-red-300 font-mono">Y</strong>) exceeding the quantum arrival runway (<strong class="text-red-300 font-mono">Z</strong>) require immediate migration to NIST FIPS 203/204/205 standards.
+                </p>
+            </div>
+        </div>
+
+        <!-- KPI Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <!-- Readiness Gauge -->
+            <div class="bg-darkCard border border-darkBorder rounded-xl p-4 flex items-center justify-between relative overflow-hidden group hover:border-cyan-500/50 transition">
+                <div class="space-y-1">
+                    <p class="text-xs text-slate-400 font-medium">Quantum Readiness Index</p>
+                    <h2 id="kpiReadiness" class="text-3xl font-black text-cyan-400 font-mono">--%</h2>
+                    <p class="text-[11px] text-slate-400">Compliant with NIST PQC</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-cyan-950/60 border border-cyan-800/50 flex items-center justify-center text-cyan-400 text-xl">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+            </div>
+
+            <!-- HNDL Critical -->
+            <div class="bg-darkCard border border-darkBorder rounded-xl p-4 flex items-center justify-between relative overflow-hidden group hover:border-red-500/50 transition">
+                <div class="space-y-1">
+                    <p class="text-xs text-slate-400 font-medium">HNDL Critical Assets</p>
+                    <h2 id="kpiCritical" class="text-3xl font-black text-red-500 font-mono">--</h2>
+                    <p class="text-[11px] text-red-400/80 font-medium">Immediate Harvest Threat</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-red-950/60 border border-red-800/50 flex items-center justify-center text-red-400 text-xl animate-pulse">
+                    <i class="fa-solid fa-biohazard"></i>
+                </div>
+            </div>
+
+            <!-- Total Assets -->
+            <div class="bg-darkCard border border-darkBorder rounded-xl p-4 flex items-center justify-between relative overflow-hidden group hover:border-indigo-500/50 transition">
+                <div class="space-y-1">
+                    <p class="text-xs text-slate-400 font-medium">Discovered Primitives</p>
+                    <h2 id="kpiTotal" class="text-3xl font-black text-indigo-400 font-mono">--</h2>
+                    <p class="text-[11px] text-slate-400">Total in Cryptographic BOM</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-indigo-950/60 border border-indigo-800/50 flex items-center justify-center text-indigo-400 text-xl">
+                    <i class="fa-solid fa-cubes-stacked"></i>
+                </div>
+            </div>
+
+            <!-- Quantum Horizon Runway -->
+            <div class="bg-darkCard border border-darkBorder rounded-xl p-4 flex items-center justify-between relative overflow-hidden group hover:border-amber-500/50 transition">
+                <div class="space-y-1">
+                    <p class="text-xs text-slate-400 font-medium">Mosca Migration Runway</p>
+                    <h2 id="kpiRunway" class="text-3xl font-black text-amber-400 font-mono">4.0 yrs</h2>
+                    <p class="text-[11px] text-slate-400">Window before migration debt</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-amber-950/60 border border-amber-800/50 flex items-center justify-center text-amber-400 text-xl">
+                    <i class="fa-solid fa-hourglass-half"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Mosca Scatter Matrix & Severity Doughnut -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Mosca Scatter Plot -->
+            <div class="lg:col-span-2 bg-darkCard border border-darkBorder rounded-xl p-5 space-y-3">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-100 flex items-center space-x-2">
+                            <i class="fa-solid fa-chart-scatter text-cyan-400"></i>
+                            <span>Mosca's Inequality Risk Matrix (Dynamic Q-Score Scatter)</span>
+                        </h3>
+                        <p class="text-xs text-slate-400">Plotting Data Shelf-Life ($X$) vs. Cryptographic Vulnerability ($Q_{\text{score}}$)</p>
+                    </div>
+                    <span class="text-[11px] px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono border border-slate-700">Horizon Z = 7 yrs</span>
+                </div>
+                <div class="h-64 relative">
+                    <canvas id="moscaScatterChart"></canvas>
+                </div>
+                <div class="flex items-center justify-between text-[11px] text-slate-400 border-t border-darkBorder pt-2">
+                    <span class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-red-500 inline-block"></span> <span>CRITICAL: HNDL Danger Zone ($X + Y > Z$)</span></span>
+                    <span class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> <span>HIGH: Shor Broken, Shorter Shelf-life</span></span>
+                    <span class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span> <span>MEDIUM: Grover Impacted (AES-128)</span></span>
+                    <span class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> <span>QUANTUM SAFE: NIST FIPS 203/204</span></span>
+                </div>
+            </div>
+
+            <!-- Severity Distribution & NIST Alignment Breakdown -->
+            <div class="bg-darkCard border border-darkBorder rounded-xl p-5 space-y-4 flex flex-col justify-between">
+                <div>
+                    <h3 class="text-sm font-bold text-slate-100 flex items-center space-x-2">
+                        <i class="fa-solid fa-chart-pie text-indigo-400"></i>
+                        <span>Cryptographic Vulnerability Tiers</span>
+                    </h3>
+                    <p class="text-xs text-slate-400">Inventory breakdown by Quantum Urgency</p>
+                </div>
+                <div class="h-44 relative flex items-center justify-center">
+                    <canvas id="severityDoughnutChart"></canvas>
+                </div>
+                <div class="space-y-1.5 border-t border-darkBorder pt-3 text-xs">
+                    <div class="flex justify-between items-center text-slate-300">
+                        <span class="flex items-center space-x-2"><i class="fa-solid fa-bolt text-red-500"></i><span>Shor Vulnerable (RSA / ECC / DH)</span></span>
+                        <span id="statShor" class="font-mono font-bold text-red-400">0</span>
+                    </div>
+                    <div class="flex justify-between items-center text-slate-300">
+                        <span class="flex items-center space-x-2"><i class="fa-solid fa-arrows-split-up-and-left text-blue-400"></i><span>Grover Impacted (AES-128)</span></span>
+                        <span id="statGrover" class="font-mono font-bold text-blue-400">0</span>
+                    </div>
+                    <div class="flex justify-between items-center text-slate-300">
+                        <span class="flex items-center space-x-2"><i class="fa-solid fa-check-double text-emerald-400"></i><span>Quantum Resilient (PQC / AES-256)</span></span>
+                        <span id="statSafe" class="font-mono font-bold text-emerald-400">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- QuantumGuard Executive Intelligence Layer (additive; original dashboard remains intact) -->
+        <section id="executiveLayer" class="space-y-4">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-3">
+                <div>
+                    <p class="text-[10px] tracking-[.25em] uppercase text-cyan-400 font-bold">Decision intelligence / added module</p>
+                    <h2 class="text-xl font-black text-white">From cryptographic findings to business decisions</h2>
+                    <p class="text-xs text-slate-400 mt-1">Evidence from the selected scan, translated into impact and prioritized actions.</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button id="plainModeToggle" onclick="togglePlainMode()" class="px-3 py-2 rounded-lg border border-cyan-700 bg-cyan-950/60 text-cyan-200 text-xs font-bold"><i class="fa-solid fa-language mr-1"></i> Executive language: ON</button>
+                    <button onclick="exportExecutiveBriefing()" class="px-3 py-2 rounded-lg border border-indigo-600 bg-indigo-950/70 text-indigo-200 text-xs font-bold hover:bg-indigo-900"><i class="fa-solid fa-file-pdf mr-1"></i> Executive PDF briefing</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+                <div class="xl:col-span-2 bg-darkCard border border-darkBorder rounded-2xl p-5 space-y-4">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <div><h3 class="text-sm font-bold text-white"><i class="fa-solid fa-building-shield text-cyan-400 mr-2"></i>Business impact lens</h3><p class="text-[11px] text-slate-400 mt-1">Change the business context; the scan evidence stays the same.</p></div>
+                        <select id="industryPreset" onchange="updateExecutiveLayer()" class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200">
+                            <option value="hospital">Hospital / healthcare</option><option value="bank">Bank / financial services</option><option value="college">College / education</option><option value="iot">IoT / industrial systems</option><option value="general">General enterprise</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div class="rounded-xl border border-slate-800 bg-slate-950/70 p-3"><p class="text-[10px] uppercase tracking-wider text-slate-500">Evidence in selected scan</p><p id="execAssetCount" class="text-2xl font-black text-cyan-300 mt-1">—</p><p class="text-[11px] text-slate-400">discovered cryptographic assets</p></div>
+                        <div class="rounded-xl border border-slate-800 bg-slate-950/70 p-3"><p class="text-[10px] uppercase tracking-wider text-slate-500">Highest observed tier</p><p id="execTopTier" class="text-2xl font-black text-amber-300 mt-1">—</p><p class="text-[11px] text-slate-400">based on scanner findings</p></div>
+                        <div class="rounded-xl border border-slate-800 bg-slate-950/70 p-3"><p class="text-[10px] uppercase tracking-wider text-slate-500">Evidence coverage</p><p id="execCoverage" class="text-2xl font-black text-indigo-300 mt-1">—</p><p class="text-[11px] text-slate-400">inventory count, not full compliance</p></div>
+                    </div>
+                    <div class="rounded-xl border border-cyan-900/70 bg-gradient-to-r from-cyan-950/40 to-indigo-950/30 p-4">
+                        <p id="execImpactLabel" class="text-[10px] uppercase tracking-[.2em] text-cyan-300 font-bold">Why leadership should care</p>
+                        <h4 id="execImpactTitle" class="text-lg font-bold text-white mt-1">Protect long-lived sensitive information</h4>
+                        <p id="execImpactText" class="text-sm leading-relaxed text-slate-300 mt-2">Run a scan to turn observed cryptographic findings into an evidence-led explanation.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="rounded-xl border border-slate-800 p-3"><h4 class="text-xs font-bold text-white mb-2"><i class="fa-solid fa-list-check text-emerald-400 mr-2"></i>Recommended next moves</h4><ol id="execActions" class="space-y-2 text-xs text-slate-300"><li>1. Run a local or authorized TLS scan.</li><li>2. Review findings and validate asset owners.</li><li>3. Plan migration based on data lifetime and vendor readiness.</li></ol></div>
+                        <div class="rounded-xl border border-slate-800 p-3"><h4 class="text-xs font-bold text-white mb-2"><i class="fa-solid fa-circle-info text-amber-400 mr-2"></i>Evidence boundary</h4><p id="execEvidenceNote" class="text-xs leading-relaxed text-slate-400">This view summarizes scanner output. It does not certify compliance, prove exploitability, or predict when a cryptographically relevant quantum computer will arrive.</p></div>
+                    </div>
+                </div>
+
+                <div class="bg-darkCard border border-darkBorder rounded-2xl p-5 space-y-4">
+                    <div><h3 class="text-sm font-bold text-white"><i class="fa-solid fa-sliders text-purple-400 mr-2"></i>Quantum timeline simulator</h3><p class="text-[11px] text-slate-400 mt-1">A what-if scenario—not a quantum-computing forecast.</p></div>
+                    <div class="flex items-center justify-between text-xs"><label for="timelineYear" class="text-slate-300">Assumed CRQC horizon</label><strong id="timelineYearLabel" class="text-cyan-300 font-mono">2033</strong></div>
+                    <input id="timelineYear" type="range" min="2026" max="2040" value="2033" step="1" oninput="updateExecutiveLayer()" class="w-full accent-cyan-400">
+                    <div class="flex justify-between text-[10px] text-slate-500"><span>2026</span><span>2033</span><span>2040</span></div>
+                    <div class="rounded-xl bg-slate-950 border border-slate-800 p-4"><p class="text-[10px] uppercase tracking-wider text-slate-500">Mosca's inequality</p><p class="text-2xl font-black text-white mt-1">X + Y <span class="text-cyan-300">&gt;</span> Z</p><div class="grid grid-cols-3 gap-2 mt-3 text-center"><div><p class="text-[10px] text-slate-500">X · Data life</p><p id="timelineX" class="text-sm font-bold text-amber-300">10y</p></div><div><p class="text-[10px] text-slate-500">Y · Migration</p><p id="timelineY" class="text-sm font-bold text-purple-300">3y</p></div><div><p class="text-[10px] text-slate-500">Z · Horizon</p><p id="timelineZ" class="text-sm font-bold text-cyan-300">7y</p></div></div></div>
+                    <div id="timelineVerdict" class="rounded-lg border border-amber-800/60 bg-amber-950/30 p-3 text-xs leading-relaxed text-amber-100">Scenario loading…</div>
+                    <p class="text-[10px] leading-relaxed text-slate-500">X uses the selected industry scenario (General uses the configured shelf-life); Y uses the configured migration duration; Z = selected horizon − 2026 baseline. These are planning assumptions, not a forecast.</p>
+                </div>
+            </div>
+
+            <div class="bg-darkCard border border-darkBorder rounded-2xl p-4">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-3"><div><h3 class="text-sm font-bold text-white"><i class="fa-solid fa-bolt text-amber-400 mr-2"></i>Quick-check authorized TLS endpoints</h3><p class="text-[11px] text-slate-400 mt-1">One click launches a real TLS scan through the existing scanner. Only scan endpoints you own or have permission to assess.</p></div><div class="flex flex-wrap gap-2"><button onclick="quickTLS('google.com:443')" class="px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-xs text-slate-200 hover:border-cyan-500">google.com:443</button><button onclick="quickTLS('cloudflare.com:443')" class="px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-xs text-slate-200 hover:border-cyan-500">cloudflare.com:443</button><button onclick="quickTLS('example.com:443')" class="px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-xs text-slate-200 hover:border-cyan-500">example.com:443</button></div></div>
+                <p id="quickTLSStatus" class="text-[11px] text-cyan-300 mt-3" role="status"></p>
+            </div>
+        </section>
+
+        <!-- Section: Cryptographic Bill of Materials (CBOM) Findings Table -->
+        <div class="bg-darkCard border border-darkBorder rounded-xl overflow-hidden shadow-xl">
+            <!-- Table Header & Controls -->
+            <div class="p-4 border-b border-darkBorder flex flex-col md:flex-row md:items-center justify-between gap-3 bg-slate-900/60">
+                <div class="flex items-center space-x-3">
+                    <h3 class="text-base font-bold text-slate-100 flex items-center space-x-2">
+                        <i class="fa-solid fa-database text-cyan-400"></i>
+                        <span>Cryptographic Bill of Materials (CBOM) Inventory</span>
+                    </h3>
+                    <span id="tableCountBadge" class="text-xs px-2.5 py-0.5 rounded-full bg-slate-800 text-cyan-300 font-mono border border-slate-700">0 Items</span>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2">
+                    <!-- Search Input -->
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-400"></i>
+                        <input type="text" id="searchInput" placeholder="Search algorithm, file, host..." 
+                               class="bg-slate-950 border border-darkBorder rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500 w-52">
+                    </div>
+
+                    <!-- Risk Filter -->
+                    <select id="filterRisk" class="bg-slate-950 border border-darkBorder rounded-lg px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-cyan-500 cursor-pointer">
+                        <option value="ALL">All Risk Tiers</option>
+                        <option value="CRITICAL">Critical (HNDL Zone)</option>
+                        <option value="HIGH">High Urgency</option>
+                        <option value="MEDIUM">Medium Urgency</option>
+                        <option value="QUANTUM_SAFE">Quantum Safe</option>
+                    </select>
+
+                    <!-- Type Filter -->
+                    <select id="filterType" class="bg-slate-950 border border-darkBorder rounded-lg px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-cyan-500 cursor-pointer">
+                        <option value="ALL">All Asset Types</option>
+                        <option value="SOURCE_CODE">Source Code</option>
+                        <option value="CERTIFICATE">Certificates</option>
+                        <option value="TLS_ENDPOINT">Live TLS</option>
+                        <option value="CONFIG_FILE">Configurations</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="px-4 py-3 border-b border-darkBorder bg-cyan-950/20 text-[11px] leading-relaxed text-slate-300">
+                <span class="font-bold text-cyan-300">Explainable Q-Score · 0–100:</span> Cryptographic weakness 35% + exposure 20% + data sensitivity 20% + confidentiality lifetime 10% + Mosca planning gap 15%. Each row's inspector shows factor scores, weights, contributions and sources. Sensitivity/lifetime may be assumptions and must be validated. A recognized PQC/hybrid primitive is gated to zero quantum-vulnerability score. <span class="text-slate-400">This score is a prioritization index, not a probability of compromise.</span>
+            </div>
+
+            <!-- Table View -->
+            <div class="overflow-x-auto max-h-[460px] overflow-y-auto">
+                <table class="w-full text-left text-xs text-slate-300">
+                    <thead class="bg-slate-950 text-slate-400 uppercase text-[10px] tracking-wider border-b border-darkBorder sticky top-0 z-10">
+                        <tr>
+                            <th class="py-3 px-4">Cryptographic Asset</th>
+                            <th class="py-3 px-4">Type</th>
+                            <th class="py-3 px-4">Primitive & Key Size</th>
+                            <th class="py-3 px-4">Exposure</th>
+                            <th class="py-3 px-4">Shelf-Life ($X$)</th>
+                            <th class="py-3 px-4">Mosca Gap ($\Delta$)</th>
+                            <th class="py-3 px-4">Q-Score</th>
+                            <th class="py-3 px-4">Severity</th>
+                            <th class="py-3 px-4">Top Risk Drivers / Next Action</th>
+                            <th class="py-3 px-4 text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="findingsTableBody" class="divide-y divide-darkBorder">
+                        <tr>
+                            <td colspan="10" class="py-8 text-center text-slate-500">
+                                <i class="fa-solid fa-spinner fa-spin text-lg mb-2"></i>
+                                <p>Loading cryptographic audit findings...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Section: Interactive PQC Migration Blueprint Studio -->
+        <div id="remediationStudio" class="bg-darkCard border border-darkBorder rounded-xl p-5 space-y-4 shadow-xl">
+            <div class="flex items-center justify-between border-b border-darkBorder pb-4">
+                <div>
+                    <h3 class="text-base font-bold text-slate-100 flex items-center space-x-2">
+                        <i class="fa-solid fa-code-compare text-cyan-400"></i>
+                        <span id="diffTitle">NIST PQC Migration Blueprint & Code Diff</span>
+                    </h3>
+                    <p id="diffSubtitle" class="text-xs text-slate-400">Select any finding from the CBOM table above to view direct transition recipes</p>
+                </div>
+                <span id="diffStandardBadge" class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800">
+                    NIST FIPS 203 / 204
+                </span>
+            </div>
+
+            <!-- Side by Side Diff Viewer -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Current Vulnerable Implementation -->
+                <div class="border border-red-900/50 rounded-lg overflow-hidden bg-slate-950">
+                    <div class="bg-red-950/40 px-3 py-2 border-b border-red-900/40 flex items-center justify-between text-xs text-red-300 font-bold">
+                        <span class="flex items-center space-x-1.5"><i class="fa-solid fa-ban text-red-400"></i><span>Current Vulnerable Primitive</span></span>
+                        <span id="diffOldPrimitive" class="font-mono text-[10px] bg-red-900/60 px-2 py-0.5 rounded text-red-200">RSA-2048</span>
+                    </div>
+                    <pre class="p-3 text-xs font-mono text-red-200/90 overflow-x-auto max-h-56 leading-relaxed" id="diffOldCode">
+# Select an asset to inspect deprecated code
+                    </pre>
+                </div>
+
+                <!-- Quantum-Safe NIST Migration -->
+                <div class="border border-emerald-900/50 rounded-lg overflow-hidden bg-slate-950">
+                    <div class="bg-emerald-950/40 px-3 py-2 border-b border-emerald-900/40 flex items-center justify-between text-xs text-emerald-300 font-bold">
+                        <span class="flex items-center space-x-1.5"><i class="fa-solid fa-check-shield text-emerald-400"></i><span>Quantum-Safe Replacement (NIST PQC Standard)</span></span>
+                        <span id="diffNewPrimitive" class="font-mono text-[10px] bg-emerald-900/60 px-2 py-0.5 rounded text-emerald-200">ML-KEM-768</span>
+                    </div>
+                    <pre class="p-3 text-xs font-mono text-emerald-200/90 overflow-x-auto max-h-56 leading-relaxed" id="diffNewCode">
+# Select an asset to inspect post-quantum code
+                    </pre>
+                </div>
+            </div>
+
+            <!-- Migration Strategy Guide -->
+            <div class="p-4 rounded-lg bg-slate-900/70 border border-darkBorder flex items-start space-x-3 text-xs">
+                <i class="fa-solid fa-lightbulb text-amber-400 text-sm mt-0.5"></i>
+                <div class="space-y-1">
+                    <h4 class="font-bold text-slate-200">Implementation Recipe & Hybrid Transition Strategy:</h4>
+                    <p id="diffRecipeText" class="text-slate-300 leading-relaxed font-mono text-[11px]">
+                        Select a row in the CBOM table above to view the actionable migration steps.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal: Launch New Scan -->
+    <div id="newScanModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-darkCard border border-darkBorder rounded-2xl max-w-xl w-full p-6 space-y-5 shadow-2xl relative">
+            <button onclick="closeNewScanModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-cyan-950 border border-cyan-800 flex items-center justify-center text-cyan-400 text-lg">
+                    <i class="fa-solid fa-radar"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-slate-100">Launch Real Cryptographic Discovery</h3>
+                    <p class="text-xs text-slate-400">Audit local directories, code repositories, or live TLS endpoints</p>
+                </div>
+            </div>
+
+            <form id="scanForm" onsubmit="handleStartScan(event)" class="space-y-4 text-xs">
+                <div>
+                    <label class="block text-slate-300 font-semibold mb-1">Audit Name / Scope:</label>
+                    <input type="text" id="scanNameInput" value="Corporate Infrastructure Audit" required
+                           class="w-full bg-slate-950 border border-darkBorder rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-cyan-500">
+                </div>
+
+                <div>
+                    <label class="block text-slate-300 font-semibold mb-1">Discovery Vector:</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <label class="border border-darkBorder p-2.5 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-cyan-500/70 bg-slate-900/60 has-[:checked]:border-cyan-500 has-[:checked]:bg-cyan-950/30">
+                            <input type="radio" name="scanType" value="local_directory" checked class="hidden" onchange="updateTargetPlaceholder()">
+                            <i class="fa-solid fa-folder-tree text-cyan-400 mb-1"></i>
+                            <span class="font-bold text-[11px] text-slate-200">Local Files</span>
+                        </label>
+                        <label class="border border-darkBorder p-2.5 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-cyan-500/70 bg-slate-900/60 has-[:checked]:border-cyan-500 has-[:checked]:bg-cyan-950/30">
+                            <input type="radio" name="scanType" value="network_tls" class="hidden" onchange="updateTargetPlaceholder()">
+                            <i class="fa-solid fa-network-wired text-indigo-400 mb-1"></i>
+                            <span class="font-bold text-[11px] text-slate-200">Live TLS</span>
+                        </label>
+                        <label class="border border-darkBorder p-2.5 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-cyan-500/70 bg-slate-900/60 has-[:checked]:border-cyan-500 has-[:checked]:bg-cyan-950/30">
+                            <input type="radio" name="scanType" value="combined" class="hidden" onchange="updateTargetPlaceholder()">
+                            <i class="fa-solid fa-layer-group text-purple-400 mb-1"></i>
+                            <span class="font-bold text-[11px] text-slate-200">Combined</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="block text-slate-300 font-semibold" id="targetPathLabel">Target Directory Path:</label>
+                        <button type="button" onclick="loadSampleTarget()" class="text-cyan-400 hover:underline text-[11px] font-medium">Use Sample Targets</button>
+                    </div>
+                    <input type="text" id="scanPathInput" placeholder="C:\path\to\code\or\certs" required
+                           class="w-full bg-slate-950 border border-darkBorder rounded-lg px-3 py-2 text-slate-200 font-mono text-xs focus:outline-none focus:border-cyan-500">
+                    <p class="text-[10px] text-slate-400 mt-1" id="targetHelpText">Point to any codebase folder, system certificate directory, or TLS hostname (e.g. google.com:443).</p>
+                    <div id="uploadDropZone" class="mt-3 rounded-xl border border-dashed border-slate-600 bg-slate-950/60 p-4 text-center" ondragover="event.preventDefault(); this.classList.add('border-cyan-400')" ondragleave="this.classList.remove('border-cyan-400')" ondrop="handleFileDrop(event)">
+                        <i class="fa-solid fa-cloud-arrow-up text-xl text-cyan-400"></i>
+                        <p class="text-xs text-slate-200 mt-1 font-semibold">Drop supported files for a temporary scan</p>
+                        <p class="text-[10px] text-slate-500 mt-1">.py .js .ts .java .go .c .cpp .conf .crt .cer .pem (public certificates only) · 2 MB/file · private keys are rejected</p>
+                        <label class="inline-block mt-2 px-3 py-1.5 rounded-lg bg-slate-800 text-cyan-200 text-[11px] font-bold cursor-pointer">Choose files<input id="scanFileInput" type="file" multiple class="hidden" accept=".py,.js,.ts,.java,.go,.c,.cpp,.conf,.crt,.cer,.pem" onchange="handleFileSelection(event)"></label>
+                        <p id="uploadStatus" class="text-[10px] text-slate-400 mt-2"></p>
+                    </div>
+                </div>
+
+                <!-- Live Scan Console Output -->
+                <div id="scanConsoleWrapper" class="hidden space-y-1.5 pt-2">
+                    <div class="flex items-center justify-between text-[11px] text-slate-400">
+                        <span class="flex items-center space-x-1.5 font-bold"><i class="fa-solid fa-terminal text-cyan-400"></i><span>Live Discovery Stream</span></span>
+                        <span id="scanStatusBadge" class="text-cyan-400 font-mono">SCANNING...</span>
+                    </div>
+                    <div id="scanConsole" class="bg-black border border-darkBorder rounded-lg p-3 h-36 overflow-y-auto font-mono text-[11px] text-slate-300 space-y-1">
+                        <!-- Terminal logs appear here -->
+                    </div>
+                </div>
+
+                <div class="pt-3 flex justify-end space-x-2">
+                    <button type="button" onclick="closeNewScanModal()" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold transition">Cancel</button>
+                    <button type="submit" id="btnSubmitScan" class="px-5 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-bold transition flex items-center space-x-1.5">
+                        <i class="fa-solid fa-play"></i>
+                        <span>Start Real Discovery</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Mosca's Parameters Tuning -->
+    <div id="settingsModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-darkCard border border-darkBorder rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
+            <button onclick="closeSettingsModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-950 border border-amber-800 flex items-center justify-center text-amber-400 text-lg">
+                    <i class="fa-solid fa-sliders"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-slate-100">Mosca Risk Theorem Engine</h3>
+                    <p class="text-xs text-slate-400">Tune mathematical risk variables: $X + Y > Z$</p>
+                </div>
+            </div>
+
+            <form onsubmit="handleSaveSettings(event)" class="space-y-4 text-xs">
+                <div>
+                    <label class="block text-slate-300 font-semibold mb-1">Estimated CRQC Quantum Arrival Year ($Z$):</label>
+                    <input type="number" id="settingHorizon" min="2027" max="2050" value="2033" required
+                           class="w-full bg-slate-950 border border-darkBorder rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-cyan-500">
+                    <p class="text-[10px] text-slate-400 mt-1">Global consensus estimates 2030–2035 for Shor-capable quantum hardware.</p>
+                </div>
+                <div>
+                    <label class="block text-slate-300 font-semibold mb-1">Enterprise Migration Time in Years ($Y$):</label>
+                    <input type="number" step="0.5" id="settingMigration" min="0.5" max="15" value="3.0" required
+                           class="w-full bg-slate-950 border border-darkBorder rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-cyan-500">
+                    <p class="text-[10px] text-slate-400 mt-1">Time required to refactor PKI, protocols, code, and vendor systems.</p>
+                </div>
+                <div>
+                    <label class="block text-slate-300 font-semibold mb-1">Default Confidentiality Shelf-Life ($X$):</label>
+                    <input type="number" step="1" id="settingShelf" min="1" max="50" value="10.0" required
+                           class="w-full bg-slate-950 border border-darkBorder rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-cyan-500">
+                    <p class="text-[10px] text-slate-400 mt-1">Baseline data retention period for unclassified assets.</p>
+                </div>
+
+                <div class="pt-2 flex justify-end space-x-2">
+                    <button type="button" onclick="closeSettingsModal()" class="px-4 py-2 rounded-lg bg-slate-800 text-slate-300 font-semibold">Cancel</button>
+                    <button type="submit" class="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-bold transition">Update & Recalculate</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Inspect Single Asset -->
+    <div id="inspectModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-darkCard border border-darkBorder rounded-2xl max-w-2xl w-full p-6 space-y-4 shadow-2xl relative">
+            <button onclick="closeInspectModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-cyan-950 border border-cyan-800 flex items-center justify-center text-cyan-400 text-lg">
+                    <i class="fa-solid fa-microscope"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-slate-100" id="inspectTitle">Cryptographic Asset Inspection</h3>
+                    <p class="text-xs text-slate-400 font-mono" id="inspectLocation"></p>
+                </div>
+            </div>
+
+            <div class="space-y-3 text-xs max-h-96 overflow-y-auto">
+                <div class="grid grid-cols-2 gap-3 bg-slate-950 p-3 rounded-lg border border-darkBorder">
+                    <div><span class="text-slate-400">Primitive / Algorithm:</span> <span class="font-bold text-cyan-400" id="inspectAlgo"></span></div>
+                    <div><span class="text-slate-400">Key Size / Modulus:</span> <span class="font-mono text-slate-200" id="inspectKeySize"></span></div>
+                    <div><span class="text-slate-400">Exposure Level:</span> <span class="font-bold text-slate-200" id="inspectExposure"></span></div>
+                    <div><span class="text-slate-400">Data Shelf-Life (X):</span> <span class="font-mono text-amber-400" id="inspectShelf"></span></div>
+                    <div><span class="text-slate-400">Mosca Gap (Δ = X+Y-Z):</span> <span class="font-mono text-red-400 font-bold" id="inspectMoscaGap"></span></div>
+                    <div><span class="text-slate-400">Quantum Urgency Score:</span> <span class="font-mono text-purple-400 font-bold" id="inspectQScore"></span></div>
+                </div>
+
+                <div class="bg-slate-950 p-3 rounded-lg border border-cyan-900/60 space-y-3">
+                    <div><span class="text-cyan-300 font-semibold block">Explainable Multi-Factor Risk Score</span><p class="text-slate-500 mt-1">Weighted score, not a probability of compromise. Assumptions are labelled for validation. If a recognized PQC/hybrid primitive is detected, contextual factors alone do not create quantum-cryptographic risk.</p></div>
+                    <div id="inspectRiskFactors" class="space-y-2"></div>
+                    <div class="border-t border-slate-800 pt-3"><span class="text-emerald-300 font-semibold block">Recommended next action</span><p id="inspectNextAction" class="text-slate-300 mt-1 leading-relaxed"></p></div>
+                </div>
+
+                <div class="bg-slate-950 p-3 rounded-lg border border-darkBorder space-y-1">
+                    <span class="text-slate-400 font-semibold block">Vulnerability Diagnostic & Shor Analysis:</span>
+                    <p class="text-slate-300 leading-relaxed" id="inspectExplanation"></p>
+                </div>
+
+                <div class="bg-slate-950 p-3 rounded-lg border border-darkBorder space-y-1 font-mono">
+                    <span class="text-slate-400 font-semibold block font-sans">Raw Context / ASN.1 / Code Snippet:</span>
+                    <pre class="text-[11px] text-slate-300 overflow-x-auto whitespace-pre-wrap max-h-32" id="inspectSnippet"></pre>
+                </div>
+            </div>
+            
+            <div class="pt-2 flex justify-end">
+                <button type="button" onclick="closeInspectModal()" class="px-4 py-2 rounded-lg bg-slate-800 text-slate-300 font-semibold">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application JavaScript -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

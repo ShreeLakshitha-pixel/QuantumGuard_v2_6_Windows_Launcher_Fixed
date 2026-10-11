@@ -1,0 +1,8 @@
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+data/quantumguard.db
+data/quantumguard.db-shm
+data/quantumguard.db-wal
+data/uploaded_targets/

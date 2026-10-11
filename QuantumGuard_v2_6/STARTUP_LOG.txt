@@ -1,0 +1,91 @@
+================================================== 
+QuantumGuard v2.6 startup - 11-10-2026  2.51.29.18
+Project folder: C:\Users\Shree Lakshitha S\Downloads\QuantumGuard_v2_6_Windows_Launcher_Fixed\QuantumGuard_v2_6
+==================================================
+Python 3.11.0
+Installing dependencies...
+Collecting Flask>=3.0.0
+  Using cached flask-3.1.3-py3-none-any.whl (103 kB)
+Collecting Flask-Cors>=4.0.0
+  Using cached flask_cors-6.0.5-py3-none-any.whl (16 kB)
+Collecting cryptography>=41.0.0
+  Downloading cryptography-50.0.2-cp311-abi3-win_amd64.whl (3.8 MB)
+     ---------------------------------------- 3.8/3.8 MB 1.9 MB/s eta 0:00:00
+Collecting blinker>=1.9.0
+  Downloading blinker-1.9.0-py3-none-any.whl (8.5 kB)
+Collecting click>=8.1.3
+  Using cached click-8.5.0-py3-none-any.whl (125 kB)
+Collecting itsdangerous>=2.2.0
+  Downloading itsdangerous-2.2.0-py3-none-any.whl (16 kB)
+Collecting jinja2>=3.1.2
+  Downloading jinja2-3.1.6-py3-none-any.whl (134 kB)
+     -------------------------------------- 134.9/134.9 kB 4.0 MB/s eta 0:00:00
+Collecting markupsafe>=2.1.1
+  Downloading markupsafe-3.0.4-cp311-cp311-win_amd64.whl (14 kB)
+Collecting werkzeug>=3.1.0
+  Downloading werkzeug-3.1.9-py3-none-any.whl (228 kB)
+     -------------------------------------- 228.7/228.7 kB 4.6 MB/s eta 0:00:00
+Collecting cffi>=2.0.0
+  Using cached cffi-2.1.1-cp311-cp311-win_amd64.whl (185 kB)
+Collecting pycparser
+  Downloading pycparser-3.11-py3-none-any.whl (51 kB)
+     ---------------------------------------- 51.2/51.2 kB 2.6 MB/s eta 0:00:00
+Installing collected packages: pycparser, markupsafe, itsdangerous, click, blinker, werkzeug, jinja2, cffi, Flask, cryptography, Flask-Cors
+Successfully installed Flask-3.1.3 Flask-Cors-6.0.5 blinker-1.9.0 cffi-2.1.1 click-8.5.0 cryptography-50.0.2 itsdangerous-2.2.0 jinja2-3.1.6 markupsafe-3.0.4 pycparser-3.11 werkzeug-3.1.9
+
+[notice] A new release of pip available: 22.3 -> 26.2.1
+[notice] To update, run: C:\Users\Shree Lakshitha S\Downloads\QuantumGuard_v2_6_Windows_Launcher_Fixed\QuantumGuard_v2_6\.venv\Scripts\python.exe -m pip install --upgrade pip
+Starting Flask app...
+ * Serving Flask app 'app'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:8000
+Press CTRL+C to quit
+127.0.0.1 - - [11/Oct/2026 02:51:44] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 02:51:45] "GET /static/js/app.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 02:51:45] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 02:51:45] "GET /api/settings HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 02:51:45] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [11/Oct/2026 02:51:45] "GET /api/scans HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 02:51:45] "GET /api/scans/2 HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 02:51:45] "GET /api/dashboard?scan_id=2 HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 03:08:43] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 03:08:43] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 03:08:43] "GET /static/js/app.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 03:08:44] "GET /api/settings HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 03:08:45] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [11/Oct/2026 03:08:45] "GET /api/scans HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 03:08:45] "GET /api/scans/2 HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 03:08:45] "GET /api/dashboard?scan_id=2 HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 03:15:50] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 03:15:50] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [11/Oct/2026 03:15:50] "GET /static/js/app.js HTTP/1.1" 304 -
+127.0.0.1 - - [11/Oct/2026 03:15:51] "GET /api/settings HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 03:15:51] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [11/Oct/2026 03:15:51] "GET /api/scans HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 03:15:51] "GET /api/scans/2 HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 03:15:51] "GET /api/dashboard?scan_id=2 HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 03:16:44] "GET /api/sample-path HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 03:16:46] "POST /api/scan HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 03:16:46] "GET /api/scans/3/logs HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 03:16:46] "GET /api/scans/3 HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 03:16:47] "GET /api/scans/3/logs HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 03:16:47] "GET /api/scans/3 HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 03:16:48] "GET /api/scans/3/logs HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 03:16:48] "GET /api/scans/3 HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 03:16:49] "GET /api/scans/3/logs HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 03:16:49] "GET /api/scans/3 HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 03:16:50] "GET /api/scans/3/logs HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 03:16:50] "GET /api/scans/3 HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 03:16:50] "GET /api/scans/3/logs HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 03:16:50] "GET /api/scans/3 HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 03:16:51] "GET /api/scans HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 03:16:51] "GET /api/scans/3 HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 03:16:52] "GET /api/dashboard?scan_id=3 HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 04:03:09] "POST /api/upload-target HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 04:03:36] "POST /api/scan HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 04:03:37] "GET /api/scans/4/logs HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 04:03:37] "GET /api/scans/4 HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 04:03:38] "GET /api/scans HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 04:03:38] "GET /api/scans/4 HTTP/1.1" 200 -
+127.0.0.1 - - [11/Oct/2026 04:03:38] "GET /api/dashboard?scan_id=4 HTTP/1.1" 200 -
